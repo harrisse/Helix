@@ -13,7 +13,6 @@ public class ArtistsFragment extends ListFragment implements OnItemClickListener
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		((Helix) getActivity()).setTab(2);
-		getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.nav_options)[2]);
 		Cursor cur = getActivity().getContentResolver().query(Artists.EXTERNAL_CONTENT_URI, new String[] { Artists.ARTIST, Artists._ID }, null, null, Artists.ARTIST + " ASC");
         setListAdapter(new SimpleCursorAdapter(getActivity().getApplicationContext(), R.layout.nav_list_item, cur, new String[] { Artists.ARTIST }, new int[] { android.R.id.text1 }, 0));
         getListView().setOnItemClickListener(this);

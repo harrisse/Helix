@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">Helix</string>
     <string name="action_settings">Settings</string>
+    <string name="play_pause_desc">Play / Pause</string>
     <string-array name="nav_options">
         <item >Now Playing</item>
         <item >Playlists</item>

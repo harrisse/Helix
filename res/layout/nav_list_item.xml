@@ -7,5 +7,5 @@
 	android:paddingLeft="16dp"
 	android:paddingRight="56dp"
 	android:textColor="@android:color/primary_text_light"
-	android:background="@drawable/list_item_selector"
+	android:background="@layout/list_item_selector"
 	android:minHeight="?android:attr/listPreferredItemHeightSmall"/>

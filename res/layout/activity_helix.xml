@@ -12,10 +12,46 @@
     <ListView android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
+        android:layout_gravity="left"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
-        android:listSelector="@drawable/list_item_selector"
+        android:listSelector="@layout/list_item_selector"
         android:background="@android:color/background_light"/>
+    
+	<RelativeLayout android:id="@+id/right_drawer"
+        android:layout_width="320dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:paddingBottom="48dp"
+        android:background="@android:color/background_light">
+        
+        <ImageButton android:id="@+id/play_button"
+            android:contentDescription="@string/play_pause_desc"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_centerHorizontal="true"
+		    android:layout_alignParentBottom="true"
+		    android:src="@drawable/ic_action_play"
+		    android:onClick="playButtonClicked" />
+        
+        <ImageButton android:id="@+id/prev_button"
+            android:contentDescription="@string/play_pause_desc"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_toLeftOf="@+id/play_button"
+		    android:layout_alignParentBottom="true"
+		    android:src="@drawable/ic_action_previous"
+		    android:onClick="previous" />
+        
+		<ImageButton android:id="@+id/next_button"
+            android:contentDescription="@string/play_pause_desc"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_toRightOf="@+id/play_button"
+		    android:layout_alignParentBottom="true"
+		    android:src="@drawable/ic_action_next"
+		    android:onClick="next" />
+    </RelativeLayout>
+
 </android.support.v4.widget.DrawerLayout>

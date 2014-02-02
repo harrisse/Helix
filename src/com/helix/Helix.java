@@ -1,6 +1,7 @@
 package com.helix;
 
 import java.util.ArrayList;
+
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -19,16 +21,18 @@ import android.content.res.Configuration;
 public class Helix extends Activity implements OnPreparedListener, OnCompletionListener {
 	private DrawerLayout mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
-	private ListView mDrawerList;
+	private ListView mLeftDrawer;
 	private MediaPlayer mMediaPlayer = new MediaPlayer();
 	private ArrayList<Song> mPlaylist = new ArrayList<Song>();
+	private NowPlayingFragment mNowPlaying = new NowPlayingFragment();
+	private ImageButton mPlayButton;
 	private int index = 0;
 	
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 		setContentView(R.layout.activity_helix);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerList = (ListView) findViewById(R.id.left_drawer);
+		mLeftDrawer = (ListView) findViewById(R.id.left_drawer);
 		
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.app_name, R.string.app_name);
         
@@ -37,12 +41,16 @@ public class Helix extends Activity implements OnPreparedListener, OnCompletionL
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
 		
-		mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.nav_list_item, getResources().getStringArray(R.array.nav_options)));
-		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mLeftDrawer.setAdapter(new ArrayAdapter<String>(this, R.layout.nav_list_item, getResources().getStringArray(R.array.nav_options)));
+        mLeftDrawer.setOnItemClickListener(new DrawerItemClickListener());
 		
 		mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		mMediaPlayer.setOnPreparedListener(this);
 		mMediaPlayer.setOnCompletionListener(this);
+		
+		mPlayButton = (ImageButton) findViewById(R.id.play_button);
+		
+		getFragmentManager().beginTransaction().replace(R.id.content_frame, mNowPlaying).commit();
 	}
 	
 	public void onDestroy() {
@@ -60,39 +68,69 @@ public class Helix extends Activity implements OnPreparedListener, OnCompletionL
 	
 	public void play(int i) {
 		index = i;
-		
-		try {
-			mMediaPlayer.reset();
-			mMediaPlayer.setDataSource(getApplicationContext(), mPlaylist.get(i).uri());
-			mMediaPlayer.prepareAsync();
-		} catch (Exception e) {}
+		playNext();
+	}
+	
+	public void playNext() {
+		if (index < mPlaylist.size()) {
+			try {
+				mMediaPlayer.reset();
+				mMediaPlayer.setDataSource(getApplicationContext(), mPlaylist.get(index).uri());
+				mMediaPlayer.prepareAsync();
+			} catch (Exception e) {}
+		}
 	}
 	
 	public void play() {
-		mMediaPlayer.start();
+		if (!mPlaylist.isEmpty()) {
+			mMediaPlayer.start();
+			
+			if (mNowPlaying.isAdded()) mNowPlaying.getListView().setItemChecked(index, true);
+			mPlayButton.setImageResource(R.drawable.ic_action_pause);
+		}
 	}
 	
 	public void pause() {
 		mMediaPlayer.pause();
+		mPlayButton.setImageResource(R.drawable.ic_action_play);
 	}
 	
 	public void next() {
 		index++;
-		play(index);
+		if (index >= mPlaylist.size()) index = 0;
+		playNext();
 	}
 	
 	public void previous() {
-		if (mMediaPlayer.getCurrentPosition() > 5000) index --;
-		play(index);
+		if (mMediaPlayer.getCurrentPosition() < 5000) index--;
+		if (index < 0) index = mPlaylist.size() - 1;
+		playNext();
 	}
 	
-	public ArrayList<Song> getNowPlaying() {
+	public void playButtonClicked(View view) {
+		if (mMediaPlayer.isPlaying()) pause();
+		else play();
+	}
+	
+	public void next(View view) {
+		next();
+	}
+	
+	public void previous(View view) {
+		previous();
+	}
+	
+	public ArrayList<Song> getPlaylist() {
 		return mPlaylist;
+	}
+	
+	public int getCurrentIndex() {
+		return index;
 	}
 	
 	public void setTab(int tab) {
 		getActionBar().setTitle(getResources().getStringArray(R.array.nav_options)[tab]);
-		mDrawerList.setItemChecked(tab, true);
+		mLeftDrawer.setItemChecked(tab, true);
 	}
 	
 	public void onPrepared(MediaPlayer player) {
@@ -123,11 +161,11 @@ public class Helix extends Activity implements OnPreparedListener, OnCompletionL
 	
 	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 	    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		    mDrawerLayout.closeDrawer(mDrawerList);
+		    mDrawerLayout.closeDrawer(mLeftDrawer);
 	    	
 	    	switch (position) {
 	    		case 0:
-	    			getFragmentManager().beginTransaction().replace(R.id.content_frame, new NowPlayingFragment()).addToBackStack(null).commit();
+	    			getFragmentManager().beginTransaction().replace(R.id.content_frame, mNowPlaying).addToBackStack(null).commit();
 	    			return;
 	    		case 1:
 	    			getFragmentManager().beginTransaction().replace(R.id.content_frame, new PlaylistsFragment()).addToBackStack(null).commit();
